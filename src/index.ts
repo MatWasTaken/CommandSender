@@ -10,9 +10,7 @@ const { EmbedBuilder } = require("discord.js");
 client.on("ready", () => {
   console.log("Ready!");
   // send message
-  client.channels.cache
-    .get(process.env.GENERAL_CHANNEL_ID)
-    .send("Hello World!");
+  client.channels.cache.get(process.env.QOTD_CHANNEL_ID).send("Hello World!");
 
   const guild = client.guilds.cache.get(process.env.GUILD_ID);
   let commands;
@@ -26,6 +24,10 @@ client.on("ready", () => {
     name: "ping",
     description: "Ping!",
   });
+  commands.create({
+    name: "fqotd",
+    description: "Force QOTD",
+  });
 });
 
 // Command handler
@@ -36,6 +38,18 @@ client.on("interactionCreate", async (interaction: any) => {
 
   if (commandName === "ping") {
     await interaction.reply("Pong!");
+  } else if (commandName === "fqotd") {
+    await interaction.reply("Forcing QOTD!");
+    //Generate question in an embeded message
+    const embededQ = new EmbedBuilder()
+      .setTitle("❓❔ Question of the Day ❔❓")
+      .setColor("#E75EFF")
+      .setDescription(q[Math.floor(Math.random() * q.length)])
+      .setTimestamp();
+    //Send message to general channel
+    client.channels.cache
+      .get(process.env.QOTD_CHANNEL_ID)
+      .send({ embeds: [embededQ] });
   }
 });
 
@@ -63,26 +77,5 @@ const cronJob = new cron.CronJob(
   "Europe/Paris"
 );
 cronJob.start();
-
-// Test cron job to send message every minute
-const cronJob2 = new cron.CronJob(
-  "* * * * *",
-  function () {
-    //Generate question in an embeded message
-    const embededQ = new EmbedBuilder()
-      .setTitle("❓❔ Question of the Day ❔❓")
-      .setColor("#E75EFF")
-      .setDescription(q[Math.floor(Math.random() * q.length)])
-      .setTimestamp();
-    //Send message to general channel
-    client.channels.cache
-      .get(process.env.QOTD_CHANNEL_ID)
-      .send({ embeds: [embededQ] });
-  },
-  null,
-  true,
-  "Europe/Paris"
-);
-cronJob2.start();
 
 client.login(process.env.DISCORD_TOKEN);

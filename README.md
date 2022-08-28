@@ -1,2 +1,2 @@
-# CommandSender
- Bulk Command sender bot for discord
+# QOTD bot for Discord
+ Just another QOTD bot
