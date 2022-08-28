@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 require("dotenv").config();
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+var cron = require("cron");
 
 //Instantiate the bot
 client.on("ready", () => {
@@ -34,5 +35,19 @@ client.on("interactionCreate", async (interaction: any) => {
     await interaction.reply("Pong!");
   }
 });
+
+//cron job to send message every day at 16:00
+const cronJob = new cron.CronJob(
+  "0 0 16 * * *",
+  function () {
+    client.channels.cache
+      .get(process.env.GENERAL_CHANNEL_ID)
+      .send("It is time for the QOTD!");
+  },
+  null,
+  true,
+  "Europe/Paris"
+);
+cronJob.start();
 
 client.login(process.env.DISCORD_TOKEN);
