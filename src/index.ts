@@ -37,13 +37,11 @@ client.on("interactionCreate", async (interaction: any) => {
 });
 
 //cron job to send message every day at 16:00
-const cronJob = new cron.CronJob(
-  "0 0 16 * * *",
-  function () {
-    client.channels.cache
-      .get(process.env.GENERAL_CHANNEL_ID)
-      .send("It is time for the QOTD!");
-  },
+const cronJob = new cron.CronJob("0 0 16 * * *", function () {
+  client.channels.cache
+    .get(process.env.GENERAL_CHANNEL_ID)
+    .send("It is time for the QOTD!");
+},
   null,
   true,
   "Europe/Paris"
