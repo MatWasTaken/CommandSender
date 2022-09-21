@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits } = require("discord.js");
-require("dotenv").config();
+require("dotenv").config({path:__dirname+'/./../.env'});
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 var cron = require("cron");
 const fs = require("fs");
@@ -10,7 +10,7 @@ const { EmbedBuilder } = require("discord.js");
 client.on("ready", () => {
   console.log("Ready!");
   // send message
-  client.channels.cache.get(process.env.QOTD_CHANNEL_ID).send("Hello World!");
+  //client.channels.cache.get(process.env.QOTD_CHANNEL_ID).send("Hi gays!");
 
   const guild = client.guilds.cache.get(process.env.GUILD_ID);
   let commands;
@@ -42,7 +42,7 @@ client.on("interactionCreate", async (interaction: any) => {
     await interaction.reply("Forcing QOTD!");
     //Generate question in an embeded message
     const embededQ = new EmbedBuilder()
-      .setTitle("❓❔ Question of the Day ❔❓")
+      .setTitle("❓❔ Question of the 🏳️‍🌈 Gay 🏳️‍🌈 ❔❓")
       .setColor("#E75EFF")
       .setDescription(q[Math.floor(Math.random() * q.length)])
       .setTimestamp();
@@ -57,13 +57,13 @@ client.on("interactionCreate", async (interaction: any) => {
 const file = path.join(__dirname, "../data/questions.txt");
 const q = fs.readFileSync(file, "utf8").split("\n");
 
-// Cron job to send message every day at 16:00
+// Cron job to send message every day at 16:00 CEST
 const cronJob = new cron.CronJob(
   "0 0 16 * * *",
   function () {
     //Generate question in an embeded message
     const embededQ = new EmbedBuilder()
-      .setTitle("❓❔ Question of the Day ❔❓")
+      .setTitle("❓❔ Question of the 🏳️‍🌈Gay🏳️‍🌈 ❔❓")
       .setColor("#E75EFF")
       .setDescription(q[Math.floor(Math.random() * q.length)])
       .setTimestamp();
