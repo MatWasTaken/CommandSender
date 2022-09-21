@@ -9,7 +9,7 @@ const { EmbedBuilder } = require("discord.js");
 // Instantiate the bot
 client.on("ready", () => {
   console.log("Ready!");
-  // send message
+  // send message on startup
   //client.channels.cache.get(process.env.QOTD_CHANNEL_ID).send("Hi gays!");
 
   const guild = client.guilds.cache.get(process.env.GUILD_ID);
@@ -28,7 +28,28 @@ client.on("ready", () => {
     name: "fqotd",
     description: "Force QOTD",
   });
+  commands.create({
+    name: "reset",
+    description: "Reset QOTD file from backup",
+  });
 });
+
+function getQOTD() {
+  const qotd = fs.readFileSync(
+    path.join(__dirname, "../data/questions"),
+    "utf-8"
+  ).split("\n");
+  const qotdIndex = Math.floor(Math.random() * qotd.length);
+  const qotdQuestion = qotd[qotdIndex].toString();
+  //delete the question from the file
+  qotd.splice(qotdIndex, 1);
+  fs.writeFileSync(
+    path.join(__dirname, "../data/questions"),
+    qotd.join("\n"),
+    "utf-8"
+  );
+  return qotdQuestion;
+}
 
 // Command handler
 client.on("interactionCreate", async (interaction: any) => {
@@ -44,18 +65,21 @@ client.on("interactionCreate", async (interaction: any) => {
     const embededQ = new EmbedBuilder()
       .setTitle("❓❔ Question of the 🏳️‍🌈 Gay 🏳️‍🌈 ❔❓")
       .setColor("#E75EFF")
-      .setDescription(q[Math.floor(Math.random() * q.length)])
+      .setDescription(getQOTD())
       .setTimestamp();
     //Send message to general channel
     client.channels.cache
       .get(process.env.QOTD_CHANNEL_ID)
       .send({ embeds: [embededQ] });
+  } else if (commandName === "resetqotd") {
+    await interaction.reply("Resetting QOTD!");
+    fs.writeFileSync(
+      path.join(__dirname, "../data/questions"),
+      fs.readFileSync(path.join(__dirname, "../data/questions_backup"), "utf-8"),
+      "utf-8"
+    );
   }
 });
-
-// Select random line from txt file
-const file = path.join(__dirname, "../data/questions.txt");
-const q = fs.readFileSync(file, "utf8").split("\n");
 
 // Cron job to send message every day at 16:00 CEST
 const cronJob = new cron.CronJob(
@@ -65,7 +89,7 @@ const cronJob = new cron.CronJob(
     const embededQ = new EmbedBuilder()
       .setTitle("❓❔ Question of the 🏳️‍🌈Gay🏳️‍🌈 ❔❓")
       .setColor("#E75EFF")
-      .setDescription(q[Math.floor(Math.random() * q.length)])
+      .setDescription(getQOTD())
       .setTimestamp();
     //Send message to general channel
     client.channels.cache
