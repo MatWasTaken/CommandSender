@@ -10,7 +10,7 @@ const { EmbedBuilder } = require("discord.js");
 client.on("ready", () => {
   console.log("Ready!");
   // send message on startup
-  //client.channels.cache.get(process.env.QOTD_CHANNEL_ID).send("Hi gays!");
+  client.channels.cache.get(process.env.TEST_CHANNEL_ID).send("Hi gays!");
 
   const guild = client.guilds.cache.get(process.env.GUILD_ID);
   let commands;
@@ -32,9 +32,29 @@ client.on("ready", () => {
     name: "reset",
     description: "Reset QOTD file from backup",
   });
+  commands.create({
+    name: "scheduleqotd",
+    description: "Schedule a QOTD",
+    options: [
+      {
+        name: "question",
+        type: 3,
+        description: "The question to schedule",
+        required: true,
+      },
+    ],
+  });
 });
 
+let scheduledQuestion: string | null = null;
+
 function getQOTD() {
+  if (scheduledQuestion) {
+    const question = scheduledQuestion;
+    scheduledQuestion = null; // Reset after it's been used
+    return question;
+  }
+
   const qotd = fs.readFileSync(
     path.join(__dirname, "../data/questions"),
     "utf-8"
@@ -78,6 +98,10 @@ client.on("interactionCreate", async (interaction: any) => {
       fs.readFileSync(path.join(__dirname, "../data/questions_backup"), "utf-8"),
       "utf-8"
     );
+  } else if (commandName === "scheduleqotd") {
+    const question = interaction.options.getString("question");
+    scheduledQuestion = question;
+    await interaction.reply({content: `Scheduled question: ${question}`, ephemeral: true});
   }
 });
 
